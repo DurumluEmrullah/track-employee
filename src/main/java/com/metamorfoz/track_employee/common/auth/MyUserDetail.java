@@ -20,11 +20,10 @@ public class MyUserDetail implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<User> user = userDao.findByUsername(username);
+        User user = userDao.findByUsername(username)
+                .orElseThrow(()-> new UsernameNotFoundException("User '" + username + "' not found"));
 
-        user.orElseThrow(()-> new UsernameNotFoundException("User '" + username + "' not found"));
-
-        Set<UserRole> userRoleList = user.get().getUserRoleList();
+        Set<UserRole> userRoleList = user.getUserRoleList();
 
         String [] roles= new String[userRoleList.size()];
         for (int i =0; i<userRoleList.size();i++) {
@@ -33,7 +32,7 @@ public class MyUserDetail implements UserDetailsService {
 
         return org.springframework.security.core.userdetails.User//
                 .withUsername(username)//
-                .password(user.get().getPassword())//
+                .password(user.getPassword())//
                 .authorities(roles)//
                 .accountExpired(false)//
                 .accountLocked(false)//
